@@ -1,93 +1,53 @@
-Getting Started
-===============
+Bernard
+=======
 
-Installation
-------------
+Welcome to Bernard's documentation!
 
-The easiest way to install Bernard is using `Composer <http://getcomposer.org>`_.
-If your projects do not already use this, it is highly recommended to start
-using it.
+Bernard is a extensible library for working with message queues in PHP. It defines structure and conventions
+for consuming and producing message with support for a wide variety of backends.
 
-To install Bernard, run:
+Quick Overview
+--------------
+
+Installing
+----------
+
+Installing Bernard is as easy as adding a single line [#f1]_ in you ``composer.json`` file. This can be done with
+the following command:
 
 .. code-block:: bash
 
-    $ composer require bernard/bernard:0.6.0
-
-Then look at what kind of drivers and serializers there is available and install
-the ones you like before you are going to use Bernard.
+    $ composer require bernard/bernard:~1.0@dev
 
 Examples
 --------
 
-There are numerous examples of running Bernard in the ``example`` directory. The files are
-named after the driver they are using. Each file takes the argument ``consume`` or ``produce``.
-For instance, to use the ``Predis`` use:
+If you are not sure what or how Bernard works. We have included a directory containing full examples with a
+consumer and producer for each driver we support. Theese can be found in the ``example/`` directory.
 
-.. code-block:: sh
+Each driver has it own file like ``example/phpredis.php``. Each take a parameter of ``produce`` or ``consume``.
 
-    $ php ./example/predis.php consume
-    $ php ./example/predis.php produce
+The examples will output information about falling messages when consuming. The receiver used in the example
+will throw an exception if a random value equals 7.
 
-And you would see properly a lot of output showing an error. This is because
-the ``ErrorLogMiddleware`` is registered and shows all exceptions. In this case,
-the exception is caused by ``rand()`` always returning 7.
+Here is an example of running the producer and consumer example for redis [#f2]_.
 
-This directory is a good source for setting stuff up and can be used as a go to guide.
+Open two terminal windows and i the first run the following command:
 
-Producing Messages
-------------------
+.. code-block:: bash
 
-Any message sent to Bernard must be an instance of ``Bernard\Message``,
-which has a ``getName`` and ``getQueue`` method. ``getName`` is used when working on
-messages and identifies the worker service that should work on it.
+    $ cd /path/to/bernard
+    $ php ./example/phpredis.php produce
 
-A message is given to a producer that sends the message to the right queue.
-It is also possible to get the queue directly from the queue factory and push
-the message there. But remember to wrap the message in an ``Envelope`` object.
-The easiest way is to give it to the producer, as the queue name
-is taken from the message object.
+And in the second window run:
 
-To make it easier to send messages and not require every type to be implemented
-in a seperate class, a ``Bernard\Message\DefaultMessage`` is provided. It can hold
-any number of proberties and only needs a name for the message. The queue name
-is then generated from that. When generating the queue name it will insert a "_"
-before any uppercase letter and then lowercase the name.
+.. code-block:: bash
 
-.. code-block:: php
+    $ cd /path/to/bernard
+    $ php ./example/phpredis.php consume
 
-    <?php
+.. rubric:: Footnotes
 
-    use Bernard\Message\DefaultMessage;
-    use Bernard\Producer;
-    use Bernard\QueueFactory\PersistentFactory;
-    use Bernard\Serializer\NaiveSerializer;
-
-    // .. create $driver
-    $factory = new PersistentFactory($driver, new NaiveSerializer());
-    $producer = new Producer($factory);
-
-    $message = new DefaultMessage("SendNewsletter", array(
-        'newsletterId' => 12,
-    ));
-
-    $producer->produce($message);
-
-In Memory Queues
-~~~~~~~~~~~~~~~~
-
-Bernard comes with an implemention for ``SplQueue`` which is completly in memory.
-It is useful for development and/or testing, when you don't necessarily want actions to be
-performed.
-
-
-.. toctree::
-    :maxdepth: 2
-    :hidden:
-
-    index
-    drivers
-    serializers
-    consuming
-    frameworks
-    cookbook
+.. [#f1] Specific drivers may have additional dependencies that must be installed aswell. You can find more
+   information about these in the documentation for each.
+.. [#f2] The redis example requires the PHP redis extension to be installed.
