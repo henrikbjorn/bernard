@@ -32,7 +32,7 @@ class EnvelopeTest extends \PHPUnit_Framework_TestCase
         $this->assertNull($envelope->getStamp('undefined_stamp'));
     }
 
-    public function testItStampsCanOnlyBeSimpleTypes()
+    public function testItStampsCanOnlyBeScalarTypes()
     {
         $envelope = new Envelope(new DefaultMessage('SendNewsletter', array()), array(
             'stamp_01' => array('i', 'am', 'very', 'complex'),

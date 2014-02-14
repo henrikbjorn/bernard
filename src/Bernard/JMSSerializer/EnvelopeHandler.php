@@ -56,16 +56,13 @@ class EnvelopeHandler implements \JMS\Serializer\Handler\SubscribingHandlerInter
             'params' => array(),
         );
 
-        $data = array_merge(
-            $envelope->getStamps(),
-            array(
-                'args'      => $context->accept($envelope->getMessage(), $type),
-                'class'     => bernard_encode_class_name($envelope->getClass()),
-                'timestamp' => $envelope->getTimestamp(),
-            )
+        $data = array(
+            'args'      => $context->accept($envelope->getMessage(), $type),
+            'class'     => bernard_encode_class_name($envelope->getClass()),
+            'timestamp' => $envelope->getTimestamp(),
         );
 
-        $visitor->setRoot($data);
+        $visitor->setRoot($data + $envelope->getStamps());
 
         return $data;
     }

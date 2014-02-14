@@ -23,10 +23,7 @@ class Envelope
         $this->message   = $message;
         $this->class     = get_class($message);
         $this->timestamp = time();
-
-        $this->stamps = array_filter($stamps, function($value) {
-            return !is_object($value) && !is_array($value);
-        });
+        $this->stamps    = array_filter($stamps, 'is_scalar');
     }
 
     /**

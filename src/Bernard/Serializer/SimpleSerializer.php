@@ -24,14 +24,13 @@ class SimpleSerializer implements \Bernard\Serializer
 
         $message = $envelope->getMessage();
 
-        return json_encode(array_merge(
-            $envelope->getStamps(),
-            array(
-                'args'      => array('name' => $message->getName()) + get_object_vars($message),
-                'class'     => bernard_encode_class_name($envelope->getClass()),
-                'timestamp' => $envelope->getTimestamp(),
-            )
-        ));
+        $data = array(
+            'args'      => array('name' => $message->getName()) + get_object_vars($message),
+            'class'     => bernard_encode_class_name($envelope->getClass()),
+            'timestamp' => $envelope->getTimestamp(),
+        );
+
+        return json_encode($data + $envelope->getStamps());
     }
 
     /**

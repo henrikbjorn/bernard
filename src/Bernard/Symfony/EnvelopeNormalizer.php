@@ -20,14 +20,13 @@ class EnvelopeNormalizer extends SerializerAwareNormalizer implements Normalizer
      */
     public function normalize($object, $format = null, array $context = array())
     {
-        return array_merge(
-            $object->getStamps(),
-            array(
-                'args'      => $this->serializer->normalize($object->getMessage(), $format, $context),
-                'class'     => bernard_encode_class_name($object->getClass()),
-                'timestamp' => $object->getTimestamp(),
-            )
+        $data = array(
+            'args'      => $this->serializer->normalize($object->getMessage(), $format, $context),
+            'class'     => bernard_encode_class_name($object->getClass()),
+            'timestamp' => $object->getTimestamp(),
         );
+
+        return $data + $object->getStamps();
     }
 
     /**
