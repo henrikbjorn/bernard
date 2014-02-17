@@ -1,12 +1,13 @@
 <?php
 
 use Bernard\Consumer;
+use Bernard\EventListener;
 use Bernard\Message;
 use Bernard\Producer;
 use Bernard\QueueFactory\PersistentFactory;
 use Bernard\Router\SimpleRouter;
 use Bernard\Serializer\SimpleSerializer;
-use Bernard\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * This file contains helper methods for the examples. See example/$driver.php
@@ -29,8 +30,8 @@ function get_serializer() {
 
 function get_event_dispatcher() {
     $dispatcher = new EventDispatcher;
-    $dispatcher->subscribe(new EventDispatcher\ErrorLogSubscriber);
-    $dispatcher->subscribe(new EventDispatcher\FailureSubscriber(get_queue_factory()));
+    $dispatcher->addSubscriber(new EventListener\ErrorLogSubscriber);
+    $dispatcher->addSubscriber(new EventListener\FailureSubscriber(get_queue_factory()));
 
     return $dispatcher;
 }

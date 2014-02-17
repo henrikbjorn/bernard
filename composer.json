@@ -9,8 +9,8 @@
     },
 
     "require" : {
-        "php" : ">=5.3.3",
-        "evenement/evenement" : "~1.0"
+        "php"                      : ">=5.3.3",
+        "symfony/event-dispatcher" : ">2.1,<3.0"
     },
 
     "replace" : {
