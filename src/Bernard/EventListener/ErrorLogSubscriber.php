@@ -2,16 +2,16 @@
 
 namespace Bernard\EventListener;
 
-use Symfony\Component\EventDispatcher\GenericEvent;
+use Bernard\Event\EnvelopeExceptionEvent;
 
 class ErrorLogSubscriber implements \Symfony\Component\EventDispatcher\EventSubscriberInterface
 {
-    public function onReject(GenericEvent $event)
+    public function onReject(EnvelopeExceptionEvent $event)
     {
-        $exception = $event['exception'];
+        $exception = $event->getException();
 
         error_log(sprintf('[bernard] caught exception %s::%s while processing %s.', 
-           get_class($exception), $exception->getMessage(), $event->getSubject()->getName()));
+           get_class($exception), $exception->getMessage(), $event->getEnvelope()->getName()));
     }
 
     public static function getSubscribedEvents()

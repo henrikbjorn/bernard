@@ -3,7 +3,8 @@
 namespace Bernard;
 
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\EventDispatcher\GenericEvent;
+use Bernard\Event\EnvelopeEvent;
+use Bernard\Event\EnvelopeExceptionEvent;
 
 declare(ticks=1);
 
@@ -92,7 +93,7 @@ class Consumer
     public function invoke(Envelope $envelope, Queue $queue)
     {
         try {
-            $this->dispatcher->dispatch('bernard.invoke', new GenericEvent($envelope, compact('queue')));
+            $this->dispatcher->dispatch('bernard.invoke', new EnvelopeEvent($envelope, $queue));
 
             // for 5.3 support where a function name is not a callable
             call_user_func($this->router->map($envelope), $envelope->getMessage());
@@ -100,13 +101,13 @@ class Consumer
             // We successfully processed the message.
             $queue->acknowledge($envelope);
 
-            $this->dispatcher->dispatch('bernard.acknowledge', new GenericEvent($envelope, compact('queue')));
-        } catch (\Exception $exception) {
+            $this->dispatcher->dispatch('bernard.acknowledge', new EnvelopeEvent($envelope, $queue));
+        } catch (\Exception $e) {
             // Make sure the exception is not interfering.
             // Previously failing jobs handling have been moved to a middleware.
             //
             // Emit an event to let others log that exception
-            $this->dispatcher->dispatch('bernard.reject', new GenericEvent($envelope, compact('queue', 'exception')));
+            $this->dispatcher->dispatch('bernard.reject', new EnvelopeExceptionEvent($envelope, $queue, $e));
         }
     }
 

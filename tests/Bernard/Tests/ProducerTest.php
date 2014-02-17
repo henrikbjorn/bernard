@@ -21,7 +21,7 @@ class ProducerTest extends \PHPUnit_Framework_TestCase
         $args = array();
 
         $this->dispatcher->addListener('bernard.produce', function ($event) use (&$args) {
-            $args = array('envelope' => $event->getSubject(), 'queue' => $event['queue']);
+            $args = array('envelope' => $event->getEnvelope(), 'queue' => $event->getQueue());
         });
 
         $message = new DefaultMessage('Message');

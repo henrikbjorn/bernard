@@ -2,8 +2,8 @@
 
 namespace Bernard;
 
+use Bernard\Event\EnvelopeEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\EventDispatcher\GenericEvent;
 
 /**
  * @package Bernard
@@ -34,6 +34,6 @@ class Producer
         $queue = $this->queues->create($queueName);
         $queue->enqueue($envelope = new Envelope($message));
 
-        $this->dispatcher->dispatch('bernard.produce', new GenericEvent($envelope, compact('queue')));
+        $this->dispatcher->dispatch('bernard.produce', new EnvelopeEvent($envelope, $queue));
     }
 }

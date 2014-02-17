@@ -7,7 +7,8 @@ use Bernard\Queue\InMemoryQueue;
 use Bernard\Envelope;
 use Bernard\Message\DefaultMessage;
 use Bernard\Router\SimpleRouter;
-use Symfony\Component\EventDispatcher\GenericEvent;
+use Bernard\Event\EnvelopeExceptionEvent;
+use Bernard\Event\EnvelopeEvent;
 
 class ConsumerTest extends \PHPUnit_Framework_TestCase
 {
@@ -26,10 +27,10 @@ class ConsumerTest extends \PHPUnit_Framework_TestCase
         $queue = new InMemoryQueue('queue');
 
         $this->dispatcher->expects($this->at(0))->method('dispatch')
-            ->with('bernard.invoke', new GenericEvent($envelope, array('queue' => $queue)));
+            ->with('bernard.invoke', new EnvelopeEvent($envelope, $queue));
 
         $this->dispatcher->expects($this->at(1))->method('dispatch')
-            ->with('bernard.acknowledge', new GenericEvent($envelope, array('queue' => $queue)));
+            ->with('bernard.acknowledge', new EnvelopeEvent($envelope, $queue));
 
         $this->consumer->invoke($envelope, $queue);
     }
@@ -46,7 +47,7 @@ class ConsumerTest extends \PHPUnit_Framework_TestCase
         $queue = new InMemoryQueue('queue');
 
         $this->dispatcher->expects($this->at(1))->method('dispatch')
-            ->with('bernard.reject', new GenericEvent($envelope, array('queue' => $queue, 'exception' => $exception)));
+            ->with('bernard.reject', new EnvelopeExceptionEvent($envelope, $queue, $exception));
 
         $this->consumer->invoke($envelope, $queue);
     }

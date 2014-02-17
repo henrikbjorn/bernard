@@ -2,7 +2,8 @@
 
 namespace Bernard\EventListener;
 
-use Symfony\Component\EventDispatcher\GenericEvent;
+use Bernard\Event\EnvelopeEvent;
+use Bernard\Event\EnvelopeExceptionEvent;
 use Psr\Log\LoggerInterface;
 
 class LoggerSubscriber implements \Symfony\Component\EventDispatcher\EventSubscriberInterface
@@ -14,26 +15,26 @@ class LoggerSubscriber implements \Symfony\Component\EventDispatcher\EventSubscr
         $this->logger = $logger;
     }
 
-    public function onProduce(GenericEvent $event)
+    public function onProduce(EnvelopeEvent $event)
     {
         $this->logger->info('[bernard] produced {envelope} onto {queue}.', array(
-            'envelope' => $event->getSubject(),
-            'queue' => $event['queue'],
+            'envelope' => $event->getEnvelope(),
+            'queue' => $event->getQueue(),
         ));
     }
 
-    public function onInvoke(GenericEvent $event)
+    public function onInvoke(EnvelopeEvent $event)
     {
         $this->logger->info('[bernard] invoking receiver for {envelope}.', array(
-            'envelope' => $event->getSubject(),
+            'envelope' => $event->getEnvelope(),
         ));
     }
 
-    public function onReject(GenericEvent $event)
+    public function onReject(EnvelopeExceptionEvent $event)
     {
         $this->logger->error('[bernard] caught exception {exception} while processing {envelope}.', array(
-            'envelope' => $event->getSubject(),
-            'exception' => $event['exception'],
+            'envelope' => $event->getEnvelope(),
+            'exception' => $event->getException(),
         ));
     }
 
