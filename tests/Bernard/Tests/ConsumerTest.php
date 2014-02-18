@@ -7,7 +7,7 @@ use Bernard\Queue\InMemoryQueue;
 use Bernard\Envelope;
 use Bernard\Message\DefaultMessage;
 use Bernard\Router\SimpleRouter;
-use Bernard\Event\EnvelopeExceptionEvent;
+use Bernard\Event\RejectEnvelopeEvent;
 use Bernard\Event\EnvelopeEvent;
 
 class ConsumerTest extends \PHPUnit_Framework_TestCase
@@ -47,7 +47,7 @@ class ConsumerTest extends \PHPUnit_Framework_TestCase
         $queue = new InMemoryQueue('queue');
 
         $this->dispatcher->expects($this->at(1))->method('dispatch')
-            ->with('bernard.reject', new EnvelopeExceptionEvent($envelope, $queue, $exception));
+            ->with('bernard.reject', new RejectEnvelopeEvent($envelope, $queue, $exception));
 
         $this->consumer->invoke($envelope, $queue);
     }

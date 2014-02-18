@@ -5,7 +5,7 @@ namespace Bernard\Event;
 use Bernard\Envelope;
 use Bernard\Queue;
 
-class EnvelopeExceptionEvent extends EnvelopeEvent
+class RejectEnvelopeEvent extends EnvelopeEvent
 {
     protected $exception;
 

@@ -4,7 +4,7 @@ namespace Bernard;
 
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Bernard\Event\EnvelopeEvent;
-use Bernard\Event\EnvelopeExceptionEvent;
+use Bernard\Event\RejectEnvelopeEvent;
 
 declare(ticks=1);
 
@@ -107,7 +107,7 @@ class Consumer
             // Previously failing jobs handling have been moved to a middleware.
             //
             // Emit an event to let others log that exception
-            $this->dispatcher->dispatch('bernard.reject', new EnvelopeExceptionEvent($envelope, $queue, $e));
+            $this->dispatcher->dispatch('bernard.reject', new RejectEnvelopeEvent($envelope, $queue, $e));
         }
     }
 
