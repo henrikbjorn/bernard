@@ -3,7 +3,7 @@
 namespace Bernard\EventListener;
 
 use Bernard\QueueFactory;
-use Symfony\Component\EventDispatcher\GenericEvent;
+use Bernard\Event\RejectEnvelopeEvent;
 
 class FailureSubscriber implements \Symfony\Component\EventDispatcher\EventSubscriberInterface
 {
@@ -16,12 +16,12 @@ class FailureSubscriber implements \Symfony\Component\EventDispatcher\EventSubsc
         $this->name = $name;
     }
 
-    public function onReject(GenericEvent $event)
+    public function onReject(RejectEnvelopeEvent $event)
     {
-        $envelope = $event->getSubject();
 
-        $event['queue']->acknowledge($envelope);
+        $envelope = $event->getEnvelope();
 
+        $event->getQueue()->acknowledge($envelope);
         $this->queues->create($this->name)->enqueue($envelope);
     }
 
