@@ -2,6 +2,10 @@
 
 namespace Bernard;
 
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Bernard\Event\EnvelopeEvent;
+use Bernard\Event\RejectEnvelopeEvent;
+
 declare(ticks=1);
 
 /**
@@ -18,10 +22,10 @@ class Consumer
     );
 
     /**
-     * @param Router          $router
-     * @param EventDispatcher $dispatcher
+     * @param Router                   $router
+     * @param EventDispatcherInterface $dispatcher
      */
-    public function __construct(Router $router, EventDispatcher $dispatcher)
+    public function __construct(Router $router, EventDispatcherInterface $dispatcher)
     {
         $this->router = $router;
         $this->dispatcher = $dispatcher;
@@ -89,7 +93,7 @@ class Consumer
     public function invoke(Envelope $envelope, Queue $queue)
     {
         try {
-            $this->dispatcher->emit('bernard.invoke', array($envelope, $queue));
+            $this->dispatcher->dispatch('bernard.invoke', new EnvelopeEvent($envelope, $queue));
 
             // for 5.3 support where a function name is not a callable
             call_user_func($this->router->map($envelope), $envelope->getMessage());
@@ -97,13 +101,13 @@ class Consumer
             // We successfully processed the message.
             $queue->acknowledge($envelope);
 
-            $this->dispatcher->emit('bernard.acknowledge', array($envelope, $queue));
+            $this->dispatcher->dispatch('bernard.acknowledge', new EnvelopeEvent($envelope, $queue));
         } catch (\Exception $e) {
             // Make sure the exception is not interfering.
             // Previously failing jobs handling have been moved to a middleware.
             //
             // Emit an event to let others log that exception
-            $this->dispatcher->emit('bernard.reject', array($envelope, $queue, $e));
+            $this->dispatcher->dispatch('bernard.reject', new RejectEnvelopeEvent($envelope, $queue, $e));
         }
     }
 

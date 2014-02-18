@@ -2,10 +2,10 @@
 
 namespace Bernard\Tests;
 
-use Bernard\EventDispatcher;
 use Bernard\Producer;
 use Bernard\Message\DefaultMessage;
 use Bernard\QueueFactory\InMemoryFactory;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class ProducerTest extends \PHPUnit_Framework_TestCase
 {
@@ -20,8 +20,8 @@ class ProducerTest extends \PHPUnit_Framework_TestCase
     {
         $args = array();
 
-        $this->dispatcher->on('bernard.produce', function ($envelope, $queue) use (&$args) {
-            $args = compact('envelope', 'queue');
+        $this->dispatcher->addListener('bernard.produce', function ($event) use (&$args) {
+            $args = array('envelope' => $event->getEnvelope(), 'queue' => $event->getQueue());
         });
 
         $message = new DefaultMessage('Message');

@@ -7,7 +7,8 @@ use Bernard\Queue\InMemoryQueue;
 use Bernard\Envelope;
 use Bernard\Message\DefaultMessage;
 use Bernard\Router\SimpleRouter;
-use Bernard\EventDispatcher;
+use Bernard\Event\RejectEnvelopeEvent;
+use Bernard\Event\EnvelopeEvent;
 
 class ConsumerTest extends \PHPUnit_Framework_TestCase
 {
@@ -16,7 +17,7 @@ class ConsumerTest extends \PHPUnit_Framework_TestCase
         $this->router = new SimpleRouter;
         $this->router->add('ImportUsers', new Fixtures\Service);
 
-        $this->dispatcher = $this->getMock('Bernard\EventDispatcher');
+        $this->dispatcher = $this->getMock('Symfony\Component\EventDispatcher\EventDispatcherInterface');
         $this->consumer = new Consumer($this->router, $this->dispatcher);
     }
 
@@ -25,11 +26,11 @@ class ConsumerTest extends \PHPUnit_Framework_TestCase
         $envelope = new Envelope(new DefaultMessage('ImportUsers'));
         $queue = new InMemoryQueue('queue');
 
-        $this->dispatcher->expects($this->at(0))->method('emit')
-            ->with('bernard.invoke', array($envelope, $queue));
+        $this->dispatcher->expects($this->at(0))->method('dispatch')
+            ->with('bernard.invoke', new EnvelopeEvent($envelope, $queue));
 
-        $this->dispatcher->expects($this->at(1))->method('emit')
-            ->with('bernard.acknowledge', array($envelope, $queue));
+        $this->dispatcher->expects($this->at(1))->method('dispatch')
+            ->with('bernard.acknowledge', new EnvelopeEvent($envelope, $queue));
 
         $this->consumer->invoke($envelope, $queue);
     }
@@ -45,11 +46,8 @@ class ConsumerTest extends \PHPUnit_Framework_TestCase
         $envelope = new Envelope(new DefaultMessage('ImportUsers'));
         $queue = new InMemoryQueue('queue');
 
-        $this->dispatcher->expects($this->at(0))->method('emit')
-            ->with('bernard.invoke', array($envelope, $queue));
-
-        $this->dispatcher->expects($this->at(1))->method('emit')
-            ->with('bernard.reject', array($envelope, $queue, $exception));
+        $this->dispatcher->expects($this->at(1))->method('dispatch')
+            ->with('bernard.reject', new RejectEnvelopeEvent($envelope, $queue, $exception));
 
         $this->consumer->invoke($envelope, $queue);
     }
